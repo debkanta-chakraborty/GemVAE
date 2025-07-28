@@ -7,7 +7,7 @@
 
 1. Install the package using the command
 ```
-git clone https://github.com/karanwxliaa/GemVAE.git
+git clone https://github.com/debkanta-chakraborty/GemVAE.git
 ```
 2. Unzip all the datasets in the Data dir
 3. Install dependancies
