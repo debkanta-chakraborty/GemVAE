@@ -122,6 +122,11 @@ class GATE():
         # Data normalization (optional)
         X1_, X2_ = v1.nn.softmax(X1_), v1.nn.softmax(X2_)
 
+         # Loss calculation
+        # Calculating inputs for the ZINB loss
+        # Data normalization (optional)
+        X1_, X2_ = v1.nn.softmax(X1_), v1.nn.softmax(X2_)
+        
         if self.recon_loss_type == 'ZINB':
             #USING ZINB FOR LOSS CALC
             # Estimate library size as in reference code
@@ -154,17 +159,23 @@ class GATE():
             #zinb_loss2 = self.zinb_model(X2, x_post_scale2, local_dispersion2, x_post_dropout2)
             
             # Calculate the mean of zinb_loss1 and reconstruction_loss
-
+            #zinb_loss = self.zinb_model(X1, scale1, dispersion1, dropout1)
             
             rloss = tf.reduce_mean(zinb_loss1) 
             #rloss += tf.reduce_mean(zinb_loss2)
             rloss*=-0.5
-
-            
+        elif self.recon_loss_type == 'MNBP':
+            #using MNBP
+            print("Using MNBP for gene")
+            poisson_loss = tf.nn.log_poisson_loss(X1, tf.log(X1_))
+            rloss = 0.7 * zinb_loss1 + 0.3 * poisson_loss            
         else:
             #using MSE
             print("Using MSE for gene")
             rloss = tf.sqrt(tf.reduce_sum(tf.pow(X1 - X1_, 2)))
+            
+        #MSE always for protien 
+        rloss += tf.sqrt(tf.reduce_sum(tf.pow(X2 - X2_, 2)))
             
         #MSE always for protien 
         rloss += tf.sqrt(tf.reduce_sum(tf.pow(X2 - X2_, 2)))
